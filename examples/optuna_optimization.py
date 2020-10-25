@@ -6,9 +6,9 @@ import time
 
 
 def pre_objective(worker, trial):
-    print('Hi this is worker ' + str(worker)+' taking 0.5 seconds.')
+    print('Hi this is worker ' + str(worker)+' taking 5 seconds.')
     x = [trial.suggest_float('x' + str(i), 0, 1) for i in range(3)]
-    time.sleep(0.5)
+    time.sleep(5)
     return x[0] + x[1] * x[2]
 
 
@@ -20,8 +20,6 @@ def optimize():
     end_time = time.time()
     print(end_time-start_time)
 
-def test_optimize():
-    optimize()
 
 if __name__=='__main__':
     optimize()

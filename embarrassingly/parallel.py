@@ -34,10 +34,10 @@ class Parallel:
 
 # Usage example....
 if __name__=='__main__':
-
+    start_time = time.time()
     def boss(i, x):
         print('Gonna send '+str(x)+' to server '+str(i))
-        time.sleep(random.choice(range(10-i)))
+        time.sleep(5)
         return x
 
     task = Parallel(boss, num_workers=5)
@@ -45,3 +45,5 @@ if __name__=='__main__':
     from multiprocessing import Pool
     with Pool(5) as p:
         print( p.map(task,[1,3,4,2,3,1,7,3,2,1,4,1] ) )
+
+    print("Time take: "+str(time.time()-start_time))

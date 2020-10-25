@@ -14,4 +14,4 @@ parallel
     def test_optuna():
         objective = Parallel(pre_objective, num_workers=7)
         study = optuna.create_study()
-        study.optimize(objective, n_trials=15)
+        study.optimize(objective, n_trials=15, n_jobs=7)
