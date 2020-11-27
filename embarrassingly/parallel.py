@@ -35,6 +35,7 @@ class Parallel:
 # Usage example....
 if __name__=='__main__':
     start_time = time.time()
+
     def boss(i, x):
         print('Gonna send '+str(x)+' to server '+str(i))
         time.sleep(5)
