@@ -2,30 +2,32 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-def mesh2d(f,*args):
+def mesh2d(f,bounds):
     """ Plot function taking len 2 vector as single argument
           f(xs)
+        Also put points on
     """
-    def g(x,y,*args):
-        return f(np.array([x,y]),*args)
-    mesh2d_xy(g,*args)
+    def g(x,y):
+        return f(np.array([x,y]))
+    return mesh2d_xy(g,bounds)
 
 
-def mesh2d_xy(f,*args):
+def mesh2d_xy(f,bounds):
     """ Plot function taking two arguments
         f(x,y)
     """
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
-    x = y =  np.arange(-0.5, 0.5, 0.005)
-    X, Y = np.meshgrid(x, y)
-    zs = np.array([ f(x_,y_,*args) for x_,y_ in zip( np.ravel(X), np.ravel(Y)) ])
-    Z = zs.reshape(X.shape)
+    x1 = np.arange( bounds[0][0], bounds[0][1], 0.01 )
+    x2 = np.arange(bounds[0][0], bounds[0][1], 0.01)
 
-    ax.plot_surface(X, Y, Z)
+    X1, X2 = np.meshgrid(x1, x2)
+    zs = np.array([ f(x1_,x2_) for x1_,x2_ in zip( np.ravel(X1), np.ravel(X2)) ])
+    Z = zs.reshape(X1.shape)
 
-    ax.set_xlabel('X Label')
-    ax.set_ylabel('Y Label')
-    ax.set_zlabel('Z Label')
+    ax.plot_surface(X1, X2, Z, alpha=0.7)
 
-    plt.show()
+    ax.set_xlabel('$x_1$')
+    ax.set_ylabel('$x_2$')
+
+    return fig, ax
