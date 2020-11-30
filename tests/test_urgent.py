@@ -1,3 +1,3 @@
 
-from embarrassingly.urgent import Urgent
+from embarrassingly.shy import Shy
 
