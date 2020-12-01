@@ -2,7 +2,7 @@
 
 Embarrassingly obvious (in retrospect) ways to hack objective functions before you send them to optimization routines. 
 
-### Example 1
+### Example 1 : Parallel objective computation 
 
     from embarrassingly.parallel import Parallel
     import optuna
@@ -17,9 +17,9 @@ Embarrassingly obvious (in retrospect) ways to hack objective functions before y
         study = optuna.create_study()
         study.optimize(objective, n_trials=15, n_jobs=7)
 
-### Example 2
+### Example 2 : Plateau finding
 
-    from embarrassingly.shy import Shy
+    from embarrassingly.cautious import Cautious
     import numpy as np
     import math
     from scipy.optimize import shgo
@@ -40,3 +40,8 @@ Embarrassingly obvious (in retrospect) ways to hack objective functions before y
     res2 = shgo(func=platypus, bounds=bounds, n=8, iters=4, options={'minimize_every_iter': True, 'ftol': 0.1})
     print('Helicopter lands at '+str(res2.x))
 
+
+### Example 3 : Expensive functions 
+
+    See https://github.com/microprediction/embarrassingly/blob/main/examples/shy_shgo.py
+    
