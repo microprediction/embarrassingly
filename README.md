@@ -2,6 +2,8 @@
 
 Embarrassingly obvious (in retrospect) ways to hack objective functions before you send them to optimization routines. 
 
+!()[https://i.imgur.com/rWHmkEu.png]
+
 ### Example 1 : Parallel objective computation 
 
     from embarrassingly.parallel import Parallel
