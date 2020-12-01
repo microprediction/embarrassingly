@@ -4,6 +4,10 @@ Embarrassingly obvious (in retrospect) ways to hack objective functions before y
 
 ![](https://i.imgur.com/rWHmkEu.png)
 
+### Install 
+
+    pip install embarrassingly 
+
 ### Example 1 : Parallel objective computation 
 
     from embarrassingly.parallel import Parallel
