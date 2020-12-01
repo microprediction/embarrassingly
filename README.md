@@ -45,5 +45,5 @@ Embarrassingly obvious (in retrospect) ways to hack objective functions before y
 
 ### Example 3 : Expensive functions 
 
-    See https://github.com/microprediction/embarrassingly/blob/main/examples/shy_shgo.py
+    See [examples/shy_shgo.py](https://github.com/microprediction/embarrassingly/blob/main/examples/shy_shgo.py)
     
