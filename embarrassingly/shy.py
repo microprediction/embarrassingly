@@ -29,7 +29,8 @@ class Shy(Fastidious):
 
     def __init__(self, func, bounds, t_unit:float=1., d_unit:float=None, func_args=None, func_kwargs=None,
                  surrogate_model:SurrogateModel=None,
-                 cpu_model:SurrogateModel=None):
+                 cpu_model:SurrogateModel=None,
+                 kappa:float=1.0):
         """
         :param func:
         :param bounds:          List of pairs of upper/lower bounds
@@ -39,11 +40,13 @@ class Shy(Fastidious):
         :param func_kwargs      Additional keyword args as dict
         :param surrogate_model  Something from the Surrogate Modeling Toolbox, to track function itself
         :param cpu_model        Something from the Surrogate Modeling Toolbox, to track cpu times
+        :param kappa             Similar role to a Kalman gain. Can help plateau search.
 
         """
         super().__init__(func=func, func_args=func_args, func_kwargs=func_kwargs)
         self.dim = len(bounds)
         self.func = func
+        self.kappa = kappa
         self.bounds = bounds
         self.diameter = np.linalg.norm([b[1] - b[0] for b in bounds])
         self.surrogate_model = IDW(p=2) if surrogate_model is None else surrogate_model     # Surrogate function
@@ -102,10 +105,11 @@ class Shy(Fastidious):
             t_hat = self.call_cpu_model(x=x)
             t_ratio = t_hat/self.t_unit
             d_ratio = d/self.d_unit
+            y_hat = self.call_surrogate_model(x=x)
             if self.accept(d_ratio=d_ratio, t_ratio=t_ratio):
-                return self.call_and_train(x, *args, **kwargs)
+                y = self.call_and_train(x, *args, **kwargs)
+                return y_hat + self.kappa * (y - y_hat)
             else:
-                y_hat = self.call_surrogate_model(x=x)
                 self.update_approx(x=x, y=y_hat, t=t_hat,
                                    message=json.dumps({'yHat': y_hat, 't_ratio':t_ratio,'distance':d }))
                 return y_hat

@@ -9,6 +9,8 @@ from scipy.spatial.distance import cdist
 class Fastidious:
     """ For when you want your objective function to keep a record of calls and
         running minima found. Can also save one lambda if you need func_args or func_kwargs.
+
+        TODO: Maybe use https://pypi.org/project/persist-queue/
     """
 
     def __init__(self, func, func_args=None, func_kwargs=None):

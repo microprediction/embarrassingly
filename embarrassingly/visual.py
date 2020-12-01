@@ -18,8 +18,8 @@ def mesh2d_xy(f,bounds):
     """
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
-    x1 = np.arange( bounds[0][0], bounds[0][1], 0.01 )
-    x2 = np.arange(bounds[0][0], bounds[0][1], 0.01)
+    x1 = np.arange( bounds[0][0], bounds[0][1], 0.003 )
+    x2 = np.arange(bounds[0][0], bounds[0][1], 0.003)
 
     X1, X2 = np.meshgrid(x1, x2)
     zs = np.array([ f(x1_,x2_) for x1_,x2_ in zip( np.ravel(X1), np.ravel(X2)) ])
