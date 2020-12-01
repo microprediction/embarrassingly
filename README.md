@@ -49,5 +49,17 @@ Embarrassingly obvious (in retrospect) ways to hack objective functions before y
 
 ### Example 3 : Expensive functions 
 
-    See [examples/shy_shgo.py](https://github.com/microprediction/embarrassingly/blob/main/examples/shy_shgo.py)
+    def slow_and_pointless(x):
+    """ Example of a function with varying computation time """
+        r = np.linalg.norm(x)
+        quad = (0.5*0.5-r*r)/(0.5*0.5)
+        compute_time = max(0,0.5*quad+x[0])
+        time.sleep(compute_time)
+        return schwefel([1000*x[0],980*x[1]])[0]
+    
+    # Save time by making it a "shy" objective function
+    bounds = [(-0.5, 0.5), (-0.5, 0.5)]
+    SAP = Shy(slow_and_pointless, bounds=bounds, t_unit=0.01, d_unit=0.3)
+    from scipy.optimize import minimize
+    res = scipy.optimize.shgo(func=SAP, bounds=bounds, n=8, iters=4, options={'minimize_every_iter': True, 'ftol': 0.1})
     
