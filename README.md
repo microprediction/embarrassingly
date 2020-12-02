@@ -25,7 +25,7 @@ Embarrassingly obvious (in retrospect) ways to hack objective functions before y
 
 ### Example 2 : Plateau finding
 
-    from embarrassingly.cautious import Cautious
+    from embarrassingly.cautious import Underpromoted
     import numpy as np
     import math
     from scipy.optimize import shgo
@@ -42,7 +42,7 @@ Embarrassingly obvious (in retrospect) ways to hack objective functions before y
     print("Global min occurs at "+str(res1.x))
 
     # But let's land our helicopter in the flat spot! 
-    platypus = Cautious(plateaudinous, bounds=bounds, radius=0.01)
+    platypus = Underpromoted(plateaudinous, bounds=bounds, radius=0.01)
     res2 = shgo(func=platypus, bounds=bounds, n=8, iters=4, options={'minimize_every_iter': True, 'ftol': 0.1})
     print('Helicopter lands at '+str(res2.x))
 
