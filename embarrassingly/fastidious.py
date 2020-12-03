@@ -22,57 +22,61 @@ class Fastidious:
         self.func = func
         self.func_args = func_args if func_args is not None else tuple()
         self.func_kwargs = func_kwargs if func_kwargs is not None else list()
-        self.cache_x = None  # Record of x sent to func
-        self.cache_func = None  # Record of all func(x)
-        self.cache_t = None  # Time taken for the individual func call
-        self.func_min = None # Running minimum func
-        self.found_x = None  # Sequence of x values for new running minima
-        self.found_func = None  # Sequence of minimum y values
-        self.found_t = None  # Cumulative func cpu time when minima found
 
-    def update_cache(self, x, y, t):
-        """ Update log of computed "training" data
+        # Surrogate training data ... evaluated function points only
+        self.train_x = None
+        self.train_y = None
+        self.train_t = None
+
+        # Log of minima found, and when
+        self.func_min = None    # Running minimum func
+        self.found_x = None     # Sequence of x values for new running minima
+        self.found_y = None     # Sequence of minimum y values
+        self.found_tau = None   # Cumulative func cpu time when minima found
+
+    def log_evaluation(self, x, y, t):
+        """ Update log of computed training data for surrogate models
         :param x:
         :param y:   value returned
-        :param t:   time taken
+        :param t:   time taken for evaluation of function (cost)
         :return:
         """
-        if self.cache_x is None:
-            self.cache_x = [np.array(x)]
-            self.cache_func = [np.array(y)]
-            self.cache_t = [np.array(t)]
+        if self.train_x is None:
+            self.train_x = [np.array(x)]
+            self.train_y = [np.array(y)]
+            self.train_t = [np.array(t)]
         else:
-            self.cache_x.append(np.array(x))
-            self.cache_func.append(np.array(y))
-            self.cache_t.append(np.array(t))
+            self.train_x.append(np.array(x))
+            self.train_y.append(np.array(y))
+            self.train_t.append(np.array(t))
 
-    def update_found(self, x, y, t):
-        """
+    def log_new_minima(self, x, y, t):
+        """ Update log of when minima are discovered.
         :param x:
         :param y:   value returned
-        :param t:   total cpu time consumed
+        :param t:   function evaluation cost (time)
         :return:
         """
         if self.found_x is None:
             self.found_x = [np.array(x)]
-            self.found_func = [np.array(y)]
-            self.found_t = [np.array(t)]
+            self.found_y = [np.array(y)]
+            self.found_tau = [np.array(t)]
         else:
             self.found_x.append(np.array(x))
-            self.found_func.append(np.array(y))
-            self.found_t.append( np.array(self.found_t[-1]+t) )
+            self.found_y.append(np.array(y))
+            self.found_tau.append(np.array(self.found_tau[-1] + t))
 
     def nfev(self):
         """ Total function evaluations """
-        return len(self.cache_x)
+        return len(self.train_x)
 
     def tfev(self):
         """ Total time spent evaluating function calls """
-        return np.sum(self.cache_t)
+        return np.sum(self.train_t)
 
     def distance_to_cache(self, x, default_dist, metric='euclidean'):
         """ Distance to nearest point in cache """
-        return default_dist if self.cache_x is None else cdist([x], self.cache_x, metric=metric)[0][0]
+        return default_dist if self.train_x is None else cdist([x], self.train_x, metric=metric)[0][0]
 
     def __call__(self, x):
 
@@ -83,10 +87,10 @@ class Fastidious:
             return y, t
 
         y, t = timed_call(x)
-        self.update_cache(x=x, y=y, t=t)
+        self.log_evaluation(x=x, y=y, t=t)
         if self.func_min is None or y<self.func_min:
             self.func_min = y
-            self.update_found(x=x,y=y,t=t)
+            self.log_new_minima(x=x, y=y, t=t)
         return y
 
 
@@ -105,7 +109,7 @@ if __name__ == '__main__':
     for alf in np.linspace(0.05, 0.2, 5):
         SAP = Fastidious(slow_and_painful, func_kwargs={'alpha':alf})
         res = shgo(func=SAP, bounds=bounds, n=8, iters=4, options={'minimize_every_iter': True, 'ftol': 0.1})
-        plt.plot(SAP.found_t, SAP.found_func)
+        plt.plot(SAP.found_tau, SAP.found_y)
         plt.xlabel('CPU Time')
         plt.ylabel('Minimum')
         plt.yscale('log')
