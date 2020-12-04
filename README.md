@@ -1,14 +1,17 @@
 # embarrassingly
 
 Embarrassingly obvious (in retrospect) ways to hack objective functions before you send them to optimization routines. 
+See [blog article](https://www.microprediction.com/blog/robust-optimization) for motivation and explanation
 
-![](https://i.imgur.com/rWHmkEu.png)
+![](https://i.imgur.com/pvcS5AX.png)
 
 ### Install 
 
     pip install embarrassingly 
 
 ### Example 1 : Parallel objective computation 
+
+See [optuna_parallel.py](https://github.com/microprediction/embarrassingly/blob/main/examples/optuna_parallel.py)
 
     from embarrassingly.parallel import Parallel
     import optuna
@@ -25,29 +28,25 @@ Embarrassingly obvious (in retrospect) ways to hack objective functions before y
 
 ### Example 2 : Plateau finding
 
-    from embarrassingly.cautious import Underpromoted
-    import numpy as np
-    import math
+See [underpromoted_shgo.py](https://github.com/microprediction/embarrassingly/blob/main/examples/underpromoted_shgo.py)
+
     from scipy.optimize import shgo
-
-    def plateaudinous(x):
-    """ A helicopter landing pad when you turn it upside down """
-    r = np.linalg.norm(x)
-    x0 = np.array([0.25,0.25])
-    amp = r*math.sin(16*r*r)
-    return -1 if np.linalg.norm(x-x0)<0.1 else 0.1*x[0] + amp
+    from embarrassingly.underpromoted import plateaudinous, Underpromoted2d
     
-    bounds = [(-1,1),(-1,1)]
-    res1 = shgo(func=plateaudinous, bounds=bounds, n=8, iters=4, options={'minimize_every_iter': True, 'ftol': 0.1})
-    print("Global min occurs at "+str(res1.x))
+    bounds = [(-1 ,1) ,(-1 ,1)]
+    f = plateaudinous
+    res1 = shgo(func=f, bounds=bounds, n=8, iters=4, options={'minimize_every_iter': True, 'ftol': 0.1})
+    print('Minimum at '+str(res1.x))
 
-    # But let's land our helicopter in the flat spot! 
-    platypus = Underpromoted(plateaudinous, bounds=bounds, radius=0.01)
-    res2 = shgo(func=platypus, bounds=bounds, n=8, iters=4, options={'minimize_every_iter': True, 'ftol': 0.1})
-    print('Helicopter lands at '+str(res2.x))
+    f_tilde = Underpromoted2d(f, bounds=bounds, radius=0.05)
+    res1 = shgo(func=f_tilde, bounds=bounds, n=8, iters=4, options={'minimize_every_iter': True, 'ftol': 0.1})
+    print('Landed at '+str(res1.x))
 
+    
 
 ### Example 3 : Expensive functions 
+
+See [shy_shgo.py](https://github.com/microprediction/embarrassingly/blob/main/examples/shy_shgo.py)
 
     def slow_and_pointless(x):
     """ Example of a function with varying computation time """
