@@ -24,7 +24,7 @@ setup(
     test_suite='pytest',
     tests_require=['pytest','optuna'],
     include_package_data=True,
-    install_requires=["wheel","pathlib","smt","tdigest","numpy"],
+    install_requires=["wheel","pathlib","numpy","scipy","scikit-learn","pyDOE2","smt","tdigest","numpy","optuna"],
     entry_points={
         "console_scripts": [
             "embarrassingly=embarrassingly.__main__:main",
