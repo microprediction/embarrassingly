@@ -49,7 +49,7 @@ class Shy(Fastidious):
                  surrogate_model:SurrogateModel=None,
                  cpu_model:SurrogateModel=None,
                  t_unit: float = None, d_unit: float = -1,
-                 kappa:float=1.0, eta:float=1e-3 ):
+                 kappa:float=1.0, eta:float=1e-3):
         """
         :param func:
         :param bounds:          List of pairs of upper/lower bounds
@@ -62,6 +62,7 @@ class Shy(Fastidious):
         :param kappa            Similar role to a Kalman gain. Can help plateau search.
         :param eta              Constant determining acceptance probability as function of time. See accept()
 
+
         """
         super().__init__(func=func, func_args=func_args, func_kwargs=func_kwargs)
         self.dim = len(bounds)
@@ -69,6 +70,8 @@ class Shy(Fastidious):
         self.kappa = kappa
         self.eta = eta
         self.bounds = bounds
+        self.verbose = True
+        self.faketime = False
         self.diameter = np.linalg.norm([b[1] - b[0] for b in bounds])
         self.surrogate_model = IDW(p=2) if surrogate_model is None else surrogate_model     # Surrogate function
         self.surrogate_model.options.update({'print_global': False})
@@ -98,12 +101,15 @@ class Shy(Fastidious):
         self.y_hats.append(np.array(y_hat))
         self.y_responses.append(y_response)
 
-    @staticmethod
-    def timed_call(f,x,*args,**kwargs):
-        start_time = time.time()
-        y = f(x,*args,**kwargs)
-        t = time.time()-start_time
-        return y,t
+    def timed_call(self,f,x,*args,**kwargs):
+        if self.faketime:
+            # Function returns a tuple value, time taken
+            return f(x,*args,**kwargs)
+        else:
+            start_time = time.time()
+            y = f(x,*args,**kwargs)
+            t = time.time()-start_time
+            return y,t
 
     def call_and_train(self, x, *args, **kwargs):
         y, t = self.timed_call(self.func,x=x,*args,**kwargs)
@@ -115,7 +121,8 @@ class Shy(Fastidious):
         if self.found_y is None or y < self.found_y[-1]:
             total_cpu = np.sum(self.train_t)
             self.log_new_minima(x=x, y=y, t=total_cpu)
-            print('New min '+str(y)+' at '+str(x))
+            if self.verbose:
+                print('New min '+str(y)+' at '+str(x))
         return y, t
 
     def __call__(self, x, *args, **kwargs):
@@ -128,8 +135,8 @@ class Shy(Fastidious):
         else:
             t_hat = self.call_cpu_model(x=x)  # Always call, just for good stats
             d = self.distance_to_cache(x=x, default_dist=self.diameter)
-            t_ratio = t_hat/self.t_unit if self.t_unit is not None else None
-            d_ratio = d/self.d_unit if self.d_unit is not None else None
+            t_ratio = t_hat/self.t_unit if self.t_unit is not None and self.t_unit>0 else None
+            d_ratio = d/self.d_unit if self.d_unit is not None and self.d_unit>0 else None
             y_hat = self.call_surrogate_model(x=x)
             if self.accept(d_ratio=d_ratio, t_ratio=t_ratio):
                 y, t = self.call_and_train(x, *args, **kwargs)
@@ -228,6 +235,11 @@ def slow_and_pointless(x):
     time.sleep(compute_time)
     return schwefel([1000*x[0],980*x[1]])[0]
 
+def slow_and_pointless_and_fast(x):
+    r = np.linalg.norm(x)
+    quad = (0.5 * 0.5 - r * r) / (0.5 * 0.5)
+    compute_time = max(0, 0.5 * quad + x[0])
+    return schwefel([1000 * x[0], 980 * x[1]])[0], compute_time
 
 def approx_demo():
     bounds = [(-0.5, 0.5), (-0.5, 0.5)]

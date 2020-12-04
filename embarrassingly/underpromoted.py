@@ -8,9 +8,10 @@ from scipy.optimize import shgo
 # Try to land on a flat spot
 # Just sugar on top of Shy()
 
+
 class Underpromoted2d(Shy2d):
 
-    def __init__(self, func, bounds, radius:float, kappa=0.25, **kwargs):
+    def __init__(self, func, bounds, radius:float, kappa=0.125, **kwargs):
         """
         :param func:
         :param bounds:

@@ -1,7 +1,6 @@
 
 # This little module makes some other optimizers look like scipy.optimize.sgho
 
-
 import optuna
 import numpy as np
 
