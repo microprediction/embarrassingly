@@ -2,9 +2,7 @@ from scipy.optimize import shgo
 from embarrassingly.underpromoted import plateaudinous, Underpromoted2d
 
 
-# Where do we land
-
-
+# Where do we land?
 
 
 if __name__=='__main__':
