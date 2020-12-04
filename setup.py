@@ -8,7 +8,7 @@ README = (HERE / "README.md").read_text()
 setup(
     name="embarrassingly",
     version="0.0.3",
-    description="Does one thing",
+    description="Pimp your objective function for faster, robust optimization",
     long_description=README,
     long_description_content_type="text/markdown",
     url="https://github.com/microprediction/embarrassingly",
@@ -22,7 +22,7 @@ setup(
     ],
     packages=["embarrassingly"],
     test_suite='pytest',
-    tests_require=['pytest','optuna'],
+    tests_require=['pytest'],
     include_package_data=True,
     install_requires=["wheel","pathlib","numpy","scipy","scikit-learn","pyDOE2","smt","tdigest","numpy","optuna"],
     entry_points={

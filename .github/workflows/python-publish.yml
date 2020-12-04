@@ -21,7 +21,17 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install setuptools wheel twine pytest optuna pathlib
+        pip install setuptools
+        pip install twine
+        pip install pytest
+        pip install pathlib
+        pip install optuna
+        pip install wheel
+        pip install numpy
+        pip install scipy
+        pip install scikit-learn
+        pip install pyDEO2
+        pip install smt
     - name: Build and publish
       env:
         TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
