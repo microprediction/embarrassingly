@@ -4,9 +4,7 @@ import numpy as np
 import math
 from scipy.optimize import shgo
 
-
-# Try to land on a flat spot
-# Just sugar on top of Shy()
+# See https://www.microprediction.com/blog/robust-optimization for explanation of experiments
 
 
 class Underpromoted2d(Shy2d):

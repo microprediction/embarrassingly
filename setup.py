@@ -24,7 +24,7 @@ setup(
     test_suite='pytest',
     tests_require=['pytest'],
     include_package_data=True,
-    install_requires=["wheel","pathlib","numpy","scipy","scikit-learn","smt","tdigest","numpy","optuna","deap"],
+    install_requires=["wheel","pathlib","numpy","scipy","scikit-learn","smt","tdigest","numpy","optuna","deap","microprediction","pandas"],
     entry_points={
         "console_scripts": [
             "embarrassingly=embarrassingly.__main__:main",

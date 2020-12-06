@@ -1,6 +1,10 @@
 
 # This little module makes some other optimizers look like scipy.optimize.sgho
 
+
+# See https://www.microprediction.com/blog/robust-optimization for explanation
+
+
 import optuna
 import numpy as np
 

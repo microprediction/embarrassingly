@@ -7,6 +7,8 @@ bounds = [(-0.5, 0.5), (-0.5, 0.5)]
 from embarrassingly.shy import Shy
 from embarrassingly.conforming import optuna_minimize
 
+# See https://www.microprediction.com/blog/robust-optimization for explanation
+
 def rround(x,ndigits):
     try:
         return str(round(x,ndigits=ndigits))

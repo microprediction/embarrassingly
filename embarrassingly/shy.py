@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import time
 
+# See https://www.microprediction.com/blog/robust-optimization for explanation
 
 class Shy(Fastidious):
 
@@ -66,7 +67,6 @@ class Shy(Fastidious):
         """
         super().__init__(func=func, func_args=func_args, func_kwargs=func_kwargs)
         self.dim = len(bounds)
-        self.func = func
         self.kappa = kappa
         self.eta = eta
         self.bounds = bounds
@@ -101,19 +101,14 @@ class Shy(Fastidious):
         self.y_hats.append(np.array(y_hat))
         self.y_responses.append(y_response)
 
-    def timed_call(self,f,x,*args,**kwargs):
-        if self.faketime:
-            # Function returns a tuple value, time taken
-            return f(x,*args,**kwargs)
-        else:
-            start_time = time.time()
-            y = f(x,*args,**kwargs)
-            t = time.time()-start_time
-            return y,t
-
-    def call_and_train(self, x, *args, **kwargs):
-        y, t = self.timed_call(self.func,x=x,*args,**kwargs)
-        self.log_evaluation(x=x, y=y, t=t)
+    def _timed_call_with_surrogate_training(self, x, *args, **kwargs):
+        """
+        :param x:          np.array typically
+        :param args:       Additional args to self.func Don't supply if you instantiated with args or kwargs already
+        :param kwargs:
+        :return:    value, cpu_time
+        """
+        y,t = self._call_fastidious(x=x,*args,**kwargs)
         self.cpu_model.set_training_values(np.array(self.train_x), np.array(self.train_t))
         self.cpu_model.train()
         self.surrogate_model.set_training_values(np.array(self.train_x), np.array(self.train_y))
@@ -126,9 +121,12 @@ class Shy(Fastidious):
         return y, t
 
     def __call__(self, x, *args, **kwargs):
+        """ Sometimes evaluate, but other times return surrogate instead
+            Always updates the surrogate model, and cpu model
+        """
         x = np.asarray(x)
         if self.train_x is None:
-            y, t = self.call_and_train(x, *args, **kwargs)
+            y, t = self._timed_call_with_surrogate_training(x, *args, **kwargs)
             y_hat = y
             y_response = y
             t_hat = 0
@@ -139,7 +137,7 @@ class Shy(Fastidious):
             d_ratio = d/self.d_unit if self.d_unit is not None and self.d_unit>0 else None
             y_hat = self.call_surrogate_model(x=x)
             if self.accept(d_ratio=d_ratio, t_ratio=t_ratio):
-                y, t = self.call_and_train(x, *args, **kwargs)
+                y, t = self._timed_call_with_surrogate_training(x, *args, **kwargs)
                 y_response = self.response(y=y, y_hat=y_hat)
             else:
                 y_response = y_hat
@@ -264,6 +262,7 @@ def approx_demo():
 
 if __name__ == '__main__':
     approx_demo()
+    pass
 
 
 

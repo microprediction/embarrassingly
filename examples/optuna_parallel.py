@@ -4,6 +4,7 @@ import time
 
 # Use optuna in parallel fashion without the need for a database
 
+# See https://www.microprediction.com/blog/robust-optimization for explanation
 
 def pre_objective(worker, trial):
     print('Hi this is worker ' + str(worker)+' taking 5 seconds.')

@@ -7,6 +7,7 @@ from smt.surrogate_models.idw import IDW
 # Run an optimizer to see which meta-parameters result in a successful yet speedy search
 # We'd really want to do this across many different problems, obviously, but it illustrates tuning.
 
+# See https://www.microprediction.com/blog/robust-optimization for explanation
 
 def meta_search(f, f_bounds, param_bounds ):
     """

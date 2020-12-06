@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 labels = list()
 bounds = [(-0.5, 0.5), (-0.5, 0.5)]
 
+# See https://www.microprediction.com/blog/robust-optimization for explanation
 
 def rround(x,ndigits):
     try:

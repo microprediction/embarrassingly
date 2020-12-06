@@ -5,6 +5,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.spatial.distance import cdist
 
+# See https://www.microprediction.com/blog/robust-optimization for explanation
+
 
 class Fastidious:
     """ For when you want your objective function to keep a record of calls and
@@ -13,15 +15,17 @@ class Fastidious:
         TODO: Maybe use https://pypi.org/project/persist-queue/
     """
 
-    def __init__(self, func, func_args=None, func_kwargs=None):
+    def __init__(self, func, func_args=None, func_kwargs=None, fake_time=False):
         """
         :param func:
         :param func_args:    Additional args as tuple
         :param func_kwargs   Additional keyword args as dict
+        :param fake_time     If set to True, func should return tuple value,cpu_time
         """
         self.func = func
-        self.func_args = func_args if func_args is not None else tuple()
-        self.func_kwargs = func_kwargs if func_kwargs is not None else list()
+        self.func_args = func_args
+        self.func_kwargs = func_kwargs
+        self.fake_time = fake_time
 
         # Surrogate training data ... evaluated function points only
         self.train_x = None
@@ -78,19 +82,40 @@ class Fastidious:
         """ Distance to nearest point in cache """
         return default_dist if self.train_x is None else cdist([x], self.train_x, metric=metric)[0][0]
 
-    def __call__(self, x):
-
-        def timed_call(x):
+    def _timed_call(self, x, *args, **kwargs ):
+        if self.fake_time:
+            f_ans = self.func(x, *args, **kwargs )
+            assert len(f_ans)==2, 'As fake_time=False, the func supplied should return a 2-tuple'
+            return f_ans[0], f_ans[1]
+        else:
             start_time = time.time()
-            y = self.func(x, *self.func_args, **self.func_kwargs)
+            y = self.func(x, *args, **kwargs)
             t = time.time() - start_time
             return y, t
 
-        y, t = timed_call(x)
-        self.log_evaluation(x=x, y=y, t=t)
-        if self.func_min is None or y<self.func_min:
+    def update_minimum(self, x, y, t):
+        if self.func_min is None or y < self.func_min:
             self.func_min = y
             self.log_new_minima(x=x, y=y, t=t)
+
+    def interpret_args(self, args, kwargs):
+        if (len(args) or len(kwargs)) and ((self.func_args is not None) or (self.func_kwargs is not None)):
+            raise ValueError(
+                'Function was created with arguments already supplied, so cannot be called with new args supplied')
+        else:
+            args = self.func_args or tuple()
+            kwargs = self.func_kwargs or dict()
+        return args, kwargs
+
+    def _call_fastidious(self, x, *args, **kwargs):
+        args, kwargs = self.interpret_args(args, kwargs)
+        y, t = self._timed_call(x, *args, **kwargs)
+        self.log_evaluation(x=x, y=y, t=t)
+        self.update_minimum(x=x, y=y, t=t)
+        return y, t
+
+    def __call__(self, x, *args,**kwargs):
+        y, t = self._call_fastidious(x=x,*args,**kwargs)
         return y
 
 

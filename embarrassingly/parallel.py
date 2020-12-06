@@ -2,6 +2,7 @@ import time
 import multiprocessing
 from contextlib import contextmanager
 
+# See https://www.microprediction.com/blog/robust-optimization for explanation
 
 class WorkerQueue:
 
