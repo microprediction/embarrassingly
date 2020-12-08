@@ -39,19 +39,24 @@ def kalman_error(xs, ys):
 
 def in_sample_kalman_error(xs, ys):
     if len(ys)>500:
-        return kalman_error(xs=xs, ys=ys[:500])
+        return kalman_error(xs=xs, ys=ys[:50])
     else:
         return 0.0
 
 
 def out_of_sample_kalman_error(xs, ys):
     if len(ys)>=750:
-        return kalman_error(xs=xs, ys=ys[500:])
+        return kalman_error(xs=xs, ys=ys[50:])
     else:
         return 0.0
 
 
 def robust_fit_out_of_sample_error(xs, ys, bounds, verbose=False)->float:
+    errs = robust_fit_out_of_sample_error_report(xs=xs, ys=ys, bounds=bounds, verbose=verbose)
+    return float(np.mean(np.mean(errs)))
+
+
+def robust_fit_out_of_sample_error_report(xs, ys, bounds, verbose=False)->[[float]]:
     """ Find best radius and kappa
     :param xs:          [ radius, kappa ]
     :param ys:    time series, or list of time series
@@ -67,21 +72,24 @@ def robust_fit_out_of_sample_error(xs, ys, bounds, verbose=False)->float:
     else:
         all_ys = [ys]
 
-    errs = list()
+    all_errs = list()
     for ys in all_ys:
+        ftol = 0.0001
+        n = 25
+        iters = 5
+        # Without underpromotion ...
+        res = shgo(func=in_sample_kalman_error, bounds=bounds, args=(ys,), n=n, iters=iters,
+                   options={'minimize_every_iter': True, 'ftol': ftol})
+        in_sample_error = in_sample_kalman_error(res.x, ys)
+        out_sample_error = out_of_sample_kalman_error(res.x, ys)
+        # With underpromotion
         in_sample_tilde = Underpromoted2d(in_sample_kalman_error, radius=radius, kappa=kappa, bounds=bounds, func_kwargs={'ys':ys})
         in_sample_tilde.verbose = False
-        res1 = shgo(func=in_sample_tilde, bounds=bounds, n=25, iters=5, options={'minimize_every_iter': True, 'ftol': 0.00001})
+        res1 = shgo(func=in_sample_tilde, bounds=bounds, n=n, iters=iters, options={'minimize_every_iter': True, 'ftol': ftol})
         in_sample_error_tilde = in_sample_kalman_error(res1.x, ys)
         out_sample_error_tilde = out_of_sample_kalman_error(res1.x, ys)
-
-        if verbose:
-            # Compare
-            res = shgo(func=in_sample_kalman_error, bounds=bounds, args=(ys,), n=25, iters=5,
-                       options={'minimize_every_iter': True, 'ftol': 0.000001})
-            in_sample_error = in_sample_kalman_error(res.x, ys)
-            out_sample_error = out_of_sample_kalman_error(res.x, ys)
-            pprint([ [in_sample_error, out_sample_error],[in_sample_error_tilde,out_sample_error_tilde]] )
-        errs.append( out_sample_error_tilde )
-
-    return float(np.mean(errs))
+        errs = [ [in_sample_error, out_sample_error],[in_sample_error_tilde,out_sample_error_tilde]]
+        all_errs.append(errs)
+    if verbose:
+        print(errs)
+    return all_errs
