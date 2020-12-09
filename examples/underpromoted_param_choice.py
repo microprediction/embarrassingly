@@ -5,7 +5,7 @@ from pprint import pprint
 import math
 
 # Trying to get a sense of what a good gain parameter might be
-
+# See https://www.microprediction.com/blog/robust-optimization for explanation of experiments
 
 def helipad(x,height,radius):
     """ Includes a helicopter landing pad when you turn it upside down """
