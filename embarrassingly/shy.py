@@ -1,5 +1,5 @@
 from smt.surrogate_models import IDW
-from embarrassingly.plot_util import mesh2d
+from embarrassingly.scatterbrained import mesh2d
 import scipy
 from deap.benchmarks import h1, schwefel
 from embarrassingly.fastidious import Fastidious
@@ -9,6 +9,7 @@ import numpy as np
 import time
 
 # See https://www.microprediction.com/blog/robust-optimization for explanation
+
 
 class Shy(Fastidious):
 

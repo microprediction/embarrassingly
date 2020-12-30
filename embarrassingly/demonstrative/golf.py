@@ -1,6 +1,6 @@
 import numpy as np
 import math
-from embarrassingly.plot_util import mesh2d
+from embarrassingly.scatterbrained import mesh2d
 import matplotlib.pyplot as plt
 
 # A very sophisticated (ahem) model for strokes around the green

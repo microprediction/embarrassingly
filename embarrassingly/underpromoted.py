@@ -1,5 +1,5 @@
 from embarrassingly.shy import Shy2d
-from embarrassingly.plot_util import mesh2d
+from embarrassingly.scatterbrained import mesh2d
 import numpy as np
 import math
 from scipy.optimize import shgo

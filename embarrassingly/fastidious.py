@@ -118,6 +118,23 @@ class Fastidious:
         y, t = self._call_fastidious(x=x,*args,**kwargs)
         return y
 
+    def visualize_2d_domain(self, step=1, label=''):
+        """ Visualize search pattern """
+        x0s = [x[0] for x in self.train_x]
+        x1s = [x[1] for x in self.train_x]
+        for l in range(0, len( x0s ), step):
+            plt.scatter( x0s[:l], x1s[:l], c='b' )
+            plt.pause(0.001)
+        x0s_found = [x[0] for x in self.found_x]
+        x1s_found = [x[1] for x in self.found_x]
+        plt.scatter( x0s_found, x1s_found, c='g')
+
+        plt.title(label + ' min=' + str(self.found_y[-1]))
+
+    def visualize_progress(self):
+        plt.plot(self.found_tau, self.found_y)
+
+
 
 def slow_and_painful(x,alpha):
     """ Example of a function that is sometimes slow """

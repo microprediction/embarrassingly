@@ -12,7 +12,6 @@ from embarrassingly.demonstrative.tabulation import make_row, RESULTS_TEMPLATE_T
 
 
 # See https://www.microprediction.com/blog/robust-optimization for explanation of experiments
-
 # Not much to see here. Kalman is pretty stable though there is some small lift for short time series.
 
 
@@ -28,7 +27,7 @@ def meshit():
     name = random.choice(NAMES)
     latent = list(reversed(mr.get_lagged_values(name=name)))
     ys = [x + NOISE * np.random.randn() for x in latent]
-    from embarrassingly.plot_util import mesh2d
+    from embarrassingly.scatterbrained import mesh2d
     mesh2d(lambda x: in_sample_kalman_error(x, ys), BOUNDS, resolution=0.1)
 
 
